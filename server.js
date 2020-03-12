@@ -27,7 +27,7 @@ app.use(function validateBearerToken(req, res, next) {
 app.get('/movies', function handleGetMovies(req, res) {
   let response = MOVIEAPI;
   if (req.query.genre) {
-    reponse = response.filter(movies =>
+    response = response.filter(movies =>
       movies.genre.toLowerCase().includes(req.query.genre.toLowerCase())
     )
   }
