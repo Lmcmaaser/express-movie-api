@@ -4,10 +4,10 @@ const morgan = require('morgan')
 const cors = require('cors')
 const helmet = require('helmet')
 const MOVIEAPI = require('./movies-data-small.json')
-console.log(MOVIEAPI, 'movieapi')
 const app = express()
+const morganSetting = process.env.NODE_ENV === 'production' ? 'tiny' : 'common')
 
-app.use(morgan('dev'))
+app.use(morgan(morganSetting))
 app.use(cors())
 app.use(helmet())
 // adding the validate middleware 1 time +
@@ -15,11 +15,9 @@ app.use(helmet())
 // takes 3 parameters
 //  3 param is callback function:
     // what we can call if we want to move to the next station in the factory line
-app.use(function validateBearerToken(req, res, next) {
+app.use(function validateBearerToken(error, req, res, next) {
     const apiToken = process.env.API_TOKEN;
-    console.log(apiToken)
     const authToken = req.get('Authorization');
-    console.log('validate bearer token middleware')
     if (!authToken || authToken.split(' ')[1] !== apiToken) {
       return res.status(401).json({ error: 'Unauthorized request'})
     }
@@ -28,8 +26,6 @@ app.use(function validateBearerToken(req, res, next) {
 
 app.get('/movies', function handleGetMovies(req, res) {
   let response = MOVIEAPI;
-  console.log("upcoming response")
-  console.log(response);
   if (req.query.genre) {
     response = response.filter(movies =>
       movies.genre.toLowerCase().includes(req.query.genre.toLowerCase())
@@ -48,7 +44,17 @@ app.get('/movies', function handleGetMovies(req, res) {
   res.json(response)
 })
 
-const PORT = 9000
+app.use((error, req, res, next) => {
+  let response
+  if (process.env.NODE_ENV === 'production') {
+    response = { error: { message: 'server error' }}
+  } else {
+    response = { error }
+  }
+  res.status(500).json(response)
+})
+
+const PORT = process.env.PORT || 8000
 app.listen(PORT, () => {
   console.log(`Server listening at http://localhost:${PORT}`)
 })
