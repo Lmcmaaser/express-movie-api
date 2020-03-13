@@ -5,7 +5,7 @@ const cors = require('cors')
 const helmet = require('helmet')
 const MOVIEAPI = require('./movies-data-small.json')
 const app = express()
-const morganSetting = process.env.NODE_ENV === 'production' ? 'tiny' : 'common')
+const morganSetting = process.env.NODE_ENV === 'production' ? 'tiny' : 'common'
 
 app.use(morgan(morganSetting))
 app.use(cors())
